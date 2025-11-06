@@ -18,11 +18,11 @@ qr = qrcode.QRCode(
     border=4,
 )
 
-URL = ('https://www.seoultech.ac.kr') # 생성 사이트 링크
-IMG_Name = ("test")                   # 파일 이름
-IMG_Type = (".jpg")                   # 파일 형식
+URL = 'http://158.179.162.196/'  # 생성 사이트 링크
+IMG_Name = "chart"  # 파일 이름
+IMG_Type = "png"  # 파일 형식
 
 qr.add_data(URL)
 qr.make(fit=True)
 img = qr.make_image(fill_color="black", back_color="white")
-img.save(IMG_Name+IMG_Type)
+img.save(f"{IMG_Name}.{IMG_Type}")

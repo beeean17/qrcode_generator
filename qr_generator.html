@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 생성기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="color"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+            padding: 5px; /* 컬러 피커 패딩 수정 */
+        }
+
+        /* 2열 그리드 레이아웃 그룹 */
+        .color-group, .size-group, .margin-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            min-height: 200px;
+        }
+
+        #qrcode canvas, #qrcode img {
+            border-radius: 8px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            margin-top: 15px;
+            display: none;
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 10px 25px rgba(17, 153, 142, 0.4);
+        }
+
+        /* 옵션 그룹 (체크박스용) 스타일 */
+        .options-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f4f6f8;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .options-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .options-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+            color: #333;
+            cursor: pointer;
+        }
+
+
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔲 QR 코드 생성기</h1>
+
+    <div class="input-group">
+        <label for="url">URL 또는 텍스트</label>
+        <input type="text" id="url" placeholder="https://www.example.com" value="https://www.example.com">
+    </div>
+
+    <div class="color-group">
+        <div class="input-group">
+            <label for="fillColor">QR 도트 색상</label>
+            <input type="color" id="fillColor" value="#000000">
+        </div>
+        <div class="input-group">
+            <label for="backColor">QR 배경 색상</label>
+            <input type="color" id="backColor" value="#ffffff">
+        </div>
+    </div>
+
+    <div class="size-group">
+        <div class="input-group">
+            <label for="size">QR 크기 (픽셀)</label>
+            <input type="text" id="size" value="256" placeholder="256">
+        </div>
+        <div class="input-group">
+            <label for="errorLevel">오류 복구 수준</label>
+            <select id="errorLevel">
+                <option value="L">L (~7%)</option>
+                <option value="M">M (~15%)</option>
+                <option value="Q">Q (~25%)</option>
+                <option value="H" selected>H (~30%)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="margin-group">
+        <div class="input-group">
+            <label for="paddingSize">여백 크기 (픽셀)</label>
+            <input type="text" id="paddingSize" value="20" placeholder="20">
+        </div>
+        <div class="input-group">
+            <label for="paddingColor">여백 색상</label>
+            <input type="color" id="paddingColor" value="#ffffff">
+        </div>
+    </div>
+
+    <div class="options-group">
+        <input type="checkbox" id="transparentPadding">
+        <label for="transparentPadding">여백 배경 투명하게</label>
+    </div>
+
+
+    <button onclick="generateQR()">QR 코드 생성</button>
+    <button class="download-btn" id="downloadBtn" onclick="downloadQR()">다운로드 (PNG)</button>
+
+    <div id="qrcode"></div>
+
+    <div class="info">
+        💡 <strong>팁:</strong> 오류 복구 수준이 높을수록 손상되어도 읽을 수 있지만, QR 코드가 더 복잡해집니다.
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+    let qrcode = null;
+
+    function generateQR() {
+        const url = document.getElementById('url').value;
+        const fillColor = document.getElementById('fillColor').value;
+        const backColor = document.getElementById('backColor').value;
+        const size = parseInt(document.getElementById('size').value) || 256;
+        const errorLevel = document.getElementById('errorLevel').value;
+
+        if (!url) {
+            alert('URL 또는 텍스트를 입력해주세요!');
+            return;
+        }
+
+        // 기존 QR 코드 제거
+        const qrcodeDiv = document.getElementById('qrcode');
+        qrcodeDiv.innerHTML = '';
+
+        // 새 QR 코드 생성
+        qrcode = new QRCode(qrcodeDiv, {
+            text: url,
+            width: size,
+            height: size,
+            colorDark: fillColor,
+            colorLight: backColor,
+            correctLevel: QRCode.CorrectLevel[errorLevel]
+        });
+
+        // 다운로드 버튼 표시
+        document.getElementById('downloadBtn').style.display = 'block';
+    }
+
+    /**
+     * (수정) 다운로드 기능
+     * 원본 캔버스(QR코드)를 가져와서,
+     * 설정한 여백과 여백 색상을 적용한
+     * 새로운 캔버스를 만들어 다운로드합니다.
+     */
+    function downloadQR() {
+        const originalCanvas = document.querySelector('#qrcode canvas');
+
+        if (!originalCanvas) {
+            alert('먼저 QR 코드를 생성해주세요!');
+            return;
+        }
+
+        // 1. 설정 값 가져오기
+        const paddingSize = parseInt(document.getElementById('paddingSize').value) || 20;
+        const paddingColor = document.getElementById('paddingColor').value;
+        const isTransparent = document.getElementById('transparentPadding').checked;
+
+        const originalSize = originalCanvas.width;
+        const newSize = originalSize + (paddingSize * 2);
+
+        // 2. 새로운 캔버스 생성
+        const newCanvas = document.createElement('canvas');
+        newCanvas.width = newSize;
+        newCanvas.height = newSize;
+        const ctx = newCanvas.getContext('2d');
+
+        // 3. 배경 채우기 (투명 옵션이 아닐 경우에만)
+        if (!isTransparent) {
+            ctx.fillStyle = paddingColor;
+            ctx.fillRect(0, 0, newSize, newSize);
+        }
+        // (투명 옵션이 켜져 있으면 이 단계를 건너뛰어 캔버스 기본값인 투명 상태 유지)
+
+        // 4. 새 캔버스 중앙에 원본 QR 코드 그리기
+        ctx.drawImage(originalCanvas, paddingSize, paddingSize, originalSize, originalSize);
+
+        // 5. 새 캔버스를 PNG로 다운로드
+        const url = newCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = 'qrcode-with-margin.png'; // 파일 이름 변경
+        link.href = url;
+        link.click();
+    }
+
+    // 페이지 로드 시 자동으로 QR 코드 생성
+    window.onload = function() {
+        generateQR();
+    };
+</script>
+</body>
+</html>
