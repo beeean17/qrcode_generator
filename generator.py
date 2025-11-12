@@ -19,10 +19,10 @@ qr = qrcode.QRCode(
 )
 
 URL = 'https://forms.gle/TawBUPyWeRRBS39x9'  # 생성 사이트 링크
-IMG_Name = "Grad_Google_Form"  # 파일 이름
+IMG_Name = "Grad_Google_Form222"  # 파일 이름
 IMG_Type = "png"  # 파일 형식
 
 qr.add_data(URL)
 qr.make(fit=True)
 img = qr.make_image(fill_color="black", back_color="white")
-img.save(f"{IMG_Name}.{IMG_Type}")
+img.save(f"Saved_QR/{IMG_Name}.{IMG_Type}")
