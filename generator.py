@@ -18,8 +18,8 @@ qr = qrcode.QRCode(
     border=4,
 )
 
-URL = 'https://forms.gle/TawBUPyWeRRBS39x9'  # 생성 사이트 링크
-IMG_Name = "Grad_Google_Form222"  # 파일 이름
+URL = 'https://example.com'  # 생성 사이트 링크
+IMG_Name = "example"  # 파일 이름
 IMG_Type = "png"  # 파일 형식
 
 qr.add_data(URL)
